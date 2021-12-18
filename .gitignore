@@ -1,0 +1,5 @@
+
+.env
+*.env
+/tempFiles/*
+.ideaPROD=0

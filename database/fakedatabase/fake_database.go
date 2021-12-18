@@ -1,0 +1,5 @@
+package fakedatabase
+
+func CreateFakeData() {
+
+}

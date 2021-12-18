@@ -1,0 +1,39 @@
+{
+  "swagger": "2.0",
+  "paths": {},
+  "definitions": {
+    "LoginUserResponse": {
+      "description": "Used for return login result to front",
+      "type": "object",
+      "title": "LoginUserResponse",
+      "properties": {
+        "email": {
+          "type": "string",
+          "x-go-name": "Email"
+        },
+        "id": {
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "Id"
+        },
+        "token": {
+          "type": "string",
+          "x-go-name": "Token"
+        }
+      },
+      "x-go-package": "github.com/nikola43/fibergormapitemplate/models/user/login"
+    },
+    "RecoveryUserPasswordRequest": {
+      "description": "Esta es la estructura usada para responder con frases",
+      "type": "object",
+      "title": "RecoveryUserPasswordRequest",
+      "properties": {
+        "email": {
+          "type": "string",
+          "x-go-name": "Email"
+        }
+      },
+      "x-go-package": "github.com/nikola43/fibergormapitemplate/models/recovery"
+    }
+  }
+}

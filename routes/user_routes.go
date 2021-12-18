@@ -1,0 +1,32 @@
+package routes
+
+import (
+	"github.com/gofiber/fiber/v2"
+	jwtware "github.com/gofiber/jwt/v2"
+	"github.com/nikola43/fibergormapitemplate/controllers"
+	"github.com/nikola43/fibergormapitemplate/utils"
+)
+
+func UserRoutes(router fiber.Router) {
+	// /api/v1/user
+	userRouter := router.Group("/user")
+
+	// /api/v1/user/totalscore
+	//userRouter.Get("/:id/totalscore", controllers.GetUserTotalScoreByID)
+
+	// protected by jwt
+	userRouter.Use(jwtware.New(jwtware.Config{SigningKey: []byte(utils.GetEnvVariable("JWT_USER_KEY"))}))
+
+	// /api/v1/user/:user | GET
+	userRouter.Get("/:id", controllers.GetUserByID)
+
+	// /api/v1/user/:user | UPDATE
+	userRouter.Patch("/", controllers.UpdateUserByID)
+
+	// /api/v1/user/:user | DELETE
+	userRouter.Delete("/:id", controllers.DeleteUserByID)
+
+	// /api/v1/user/refresh
+	userRouter.Get("/:id/refresh", controllers.RefreshUser)
+
+}
