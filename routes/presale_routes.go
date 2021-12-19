@@ -21,6 +21,6 @@ func PresaleRoutes(router fiber.Router) {
 	presaleRouter.Post("/", controllers.InsertPresale)
 
 	// /api/v1/presale/claim | UPDATE
-	presaleRouter.Patch("/", controllers.SetUserClaim)
+	presaleRouter.Patch("/claim", controllers.SetUserClaim)
 
 }

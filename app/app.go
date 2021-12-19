@@ -101,6 +101,7 @@ func HandleRoutes(api fiber.Router) {
 
 	routes.UserRoutes(api)
 	routes.SignUpRoutes(api)
+	routes.PresaleRoutes(api)
 }
 
 func InitializeHttpServer(port string) {
