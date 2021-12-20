@@ -1,8 +1,8 @@
 package routes
 
 import (
+	"github.com/drg809/apiBase/controllers"
 	"github.com/gofiber/fiber/v2"
-	"github.com/nikola43/fibergormapitemplate/controllers"
 )
 
 func SignUpRoutes(router fiber.Router) {

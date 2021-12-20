@@ -21,7 +21,7 @@
           "x-go-name": "Token"
         }
       },
-      "x-go-package": "github.com/nikola43/fibergormapitemplate/models/user/login"
+      "x-go-package": "github.com/drg809/apiBase/models/user/login"
     },
     "RecoveryUserPasswordRequest": {
       "description": "Esta es la estructura usada para responder con frases",
@@ -33,7 +33,7 @@
           "x-go-name": "Email"
         }
       },
-      "x-go-package": "github.com/nikola43/fibergormapitemplate/models/recovery"
+      "x-go-package": "github.com/drg809/apiBase/models/recovery"
     }
   }
 }

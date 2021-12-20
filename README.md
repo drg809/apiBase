@@ -18,3 +18,11 @@ Lo bonito de go es que puedes compilar un binario y ejecutar la api desde el eje
 También puedes ejecutar 'go run main.go' para levantar el servicio más rápido.
 
 Para ponerlo en prod es un poco más movida porque hay que dar de alta un servicio y ponerlo apuntando al binario obtenido del build.
+
+RUTAS:
+
+urlApi: base + /api/v1/
+SingUp/SingIn - POST: urlApi + /signup/user
+Get Presales By User ID - GET: urlApi + /presale/:userID
+Insert Presale - POST: urlApi + /presale
+Claim Presale - PATCH: urlApi + /presale/claim

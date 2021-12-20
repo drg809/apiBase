@@ -3,10 +3,10 @@ package controllers
 import (
 	"fmt"
 
+	"github.com/drg809/apiBase/models"
+	"github.com/drg809/apiBase/services"
+	"github.com/drg809/apiBase/utils"
 	"github.com/gofiber/fiber/v2"
-	"github.com/nikola43/fibergormapitemplate/models"
-	"github.com/nikola43/fibergormapitemplate/services"
-	"github.com/nikola43/fibergormapitemplate/utils"
 )
 
 func SignupUser(context *fiber.Ctx) error {

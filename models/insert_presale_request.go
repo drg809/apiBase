@@ -1,5 +1,5 @@
 package models
 
 type InsertPresaleRequest struct {
-	Donated uint `json:"donated_amount"`
+	Donated float64 `json:"donated_amount"`
 }

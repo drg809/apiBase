@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"github.com/nikola43/fibergormapitemplate/models"
+	"github.com/drg809/apiBase/models"
 	"gorm.io/gorm"
 )
 

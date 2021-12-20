@@ -1,6 +1,6 @@
 package main
 
-import "github.com/nikola43/fibergormapitemplate/app"
+import "github.com/drg809/apiBase/app"
 
 // @title Fiber Example API
 // @version 1.0

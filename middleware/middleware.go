@@ -1,9 +1,9 @@
 package middleware
 
 import (
+	"github.com/drg809/apiBase/utils"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/websocket/v2"
-	"github.com/nikola43/fibergormapitemplate/utils"
 )
 
 func WebSocketUpgradeMiddleware(context *fiber.Ctx) error {

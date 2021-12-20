@@ -9,8 +9,8 @@ import (
 	_ "github.com/gofiber/jwt/v3"
 	"github.com/golang-jwt/jwt/v4"
 
+	"github.com/drg809/apiBase/models"
 	"github.com/gofiber/fiber/v2"
-	"github.com/nikola43/fibergormapitemplate/models"
 )
 
 func GenerateUserToken(address string, userID uint) (string, error) {

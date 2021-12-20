@@ -3,9 +3,9 @@ package services
 import (
 	"errors"
 
-	database "github.com/nikola43/fibergormapitemplate/database"
-	"github.com/nikola43/fibergormapitemplate/models"
-	"github.com/nikola43/fibergormapitemplate/utils"
+	database "github.com/drg809/apiBase/database"
+	"github.com/drg809/apiBase/models"
+	"github.com/drg809/apiBase/utils"
 )
 
 func GetUserByID(id uint64) (*models.User, error) {

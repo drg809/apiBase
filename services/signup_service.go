@@ -1,9 +1,9 @@
 package services
 
 import (
-	database "github.com/nikola43/fibergormapitemplate/database"
-	"github.com/nikola43/fibergormapitemplate/models"
-	"github.com/nikola43/fibergormapitemplate/utils"
+	database "github.com/drg809/apiBase/database"
+	"github.com/drg809/apiBase/models"
+	"github.com/drg809/apiBase/utils"
 )
 
 func SignupUser(signupUserRequest *models.SignupUserRequest) (*models.SignupUserResponse, error) {

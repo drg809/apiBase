@@ -1,0 +1,47 @@
+package controllers
+
+import (
+	"bytes"
+	"fmt"
+	"os"
+
+	"github.com/gofiber/fiber/v2"
+	"github.com/valyala/fasthttp"
+)
+
+func CallBSC(context *fiber.Ctx) error {
+	fmt.Println("call")
+
+	req := fasthttp.AcquireRequest()
+	defer fasthttp.ReleaseRequest(req)
+	S3_ACCESS_KEY := "https://api.bscscan.com/api?module=stats&action=bnbprice&apikey=" + os.Getenv("BSCSCAN_KEY")
+	fmt.Println(S3_ACCESS_KEY)
+	req.SetRequestURI(S3_ACCESS_KEY)
+
+	resp := fasthttp.AcquireResponse()
+	defer fasthttp.ReleaseResponse(resp)
+
+	// Perform the request
+	err := fasthttp.Do(req, resp)
+	if err != nil {
+		fmt.Printf("Client get failed: %s\n", err)
+		return err
+	}
+	if resp.StatusCode() != fasthttp.StatusOK {
+		fmt.Printf("Expected status code %d but got %d\n", fasthttp.StatusOK, resp.StatusCode())
+		return err
+	}
+
+	// Verify the content type
+	contentType := resp.Header.Peek("Content-Type")
+	if bytes.Index(contentType, []byte("application/json")) != 0 {
+		fmt.Printf("Expected content type application/json but got %s\n", contentType)
+		return err
+	}
+
+	body := resp.Body()
+
+	fmt.Printf("Response body is: %s", body)
+
+	return nil
+}

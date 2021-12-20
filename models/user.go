@@ -1,7 +1,7 @@
 package models
 
 import (
-	"github.com/nikola43/fibergormapitemplate/models/base"
+	"github.com/drg809/apiBase/models/base"
 )
 
 type User struct {

@@ -1,6 +1,6 @@
 #!/bin/bash
-rm -rf /home/ubuntu/go/src/github.com/nikola43/fibergormapitemplate/*
-rm -rf /home/ubuntu/go/src/github.com/nikola43/fibergormapitemplate/.git
-rm -rf /home/ubuntu/go/src/github.com/nikola43/fibergormapitemplate/.gitignore
-rm -rf /home/ubuntu/go/src/github.com/nikola43/fibergormapitemplate/.idea
+rm -rf /home/ubuntu/go/src/github.com/drg809/apiBase/*
+rm -rf /home/ubuntu/go/src/github.com/drg809/apiBase/.git
+rm -rf /home/ubuntu/go/src/github.com/drg809/apiBase/.gitignore
+rm -rf /home/ubuntu/go/src/github.com/drg809/apiBase/.idea
 exit

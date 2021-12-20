@@ -1,7 +1,7 @@
 package models
 
 import (
-	"github.com/nikola43/fibergormapitemplate/models/base"
+	"github.com/drg809/apiBase/models/base"
 )
 
 type Presale struct {
@@ -11,4 +11,5 @@ type Presale struct {
 	ClaimedAmount uint `gorm:"type:INTEGER not null" json:"claimed_amount,omitempty"`
 	ClaimedFirst  bool `gorm:"type:bool" json:"claimed_first,omitempty"`
 	ClaimedSecond bool `gorm:"type:bool" json:"claimed_second,omitempty"`
+	ClaimedThird  bool `gorm:"type:bool" json:"claimed_third,omitempty"`
 }

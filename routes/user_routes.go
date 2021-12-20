@@ -1,10 +1,10 @@
 package routes
 
 import (
+	"github.com/drg809/apiBase/controllers"
+	"github.com/drg809/apiBase/utils"
 	"github.com/gofiber/fiber/v2"
 	jwtware "github.com/gofiber/jwt/v2"
-	"github.com/nikola43/fibergormapitemplate/controllers"
-	"github.com/nikola43/fibergormapitemplate/utils"
 )
 
 func UserRoutes(router fiber.Router) {

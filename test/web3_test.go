@@ -5,8 +5,8 @@ import (
 	"log"
 	"testing"
 
+	"github.com/drg809/apiBase/web3Manager"
 	"github.com/ethereum/go-ethereum/ethclient"
-	"github.com/nikola43/fibergormapitemplate/web3Manager"
 	"github.com/stretchr/testify/assert"
 )
 
