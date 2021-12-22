@@ -107,3 +107,27 @@ func CallBSC(context *fiber.Ctx) error {
 
 	return utils.ReturnSuccessResponse(context)
 }
+
+func InsertOracleEntrie(insertOracleEntrie *models.Oracle) (*models.Oracle, error) {
+	dbOracle := new(models.Oracle)
+	fmt.Println(insertOracleEntrie)
+	dbOracle.LastPriceRead = insertOracleEntrie.LastPriceRead
+	dbOracle.LastTimeRead = time.Now().Unix()
+	fmt.Println(dbOracle)
+	insertResult := database.GormDB.Create(&dbOracle)
+	if insertResult.Error != nil {
+		return nil, insertResult.Error
+	}
+	return dbOracle, nil
+}
+
+func GetLastOracleRead() (*models.Oracle, error) {
+	dbPresale := new(models.Oracle)
+
+	findResult := database.GormDB.Last(dbPresale)
+	if findResult.Error != nil {
+		return nil, findResult.Error
+	}
+
+	return dbPresale, nil
+}

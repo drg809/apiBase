@@ -15,7 +15,7 @@ func PresaleRoutes(router fiber.Router) {
 	presaleRouter.Use(jwtware.New(jwtware.Config{SigningKey: []byte(utils.GetEnvVariable("JWT_USER_KEY"))}))
 
 	// /api/v1/presale/oracle | GET
-	presaleRouter.Get("/oracle", controllers.CallBSC)
+	presaleRouter.Post("/oracle", controllers.CalcTokenQuantity)
 
 	// /api/v1/presale/:presale | GET
 	presaleRouter.Get("/:id", controllers.GetPresaleByUserID)
