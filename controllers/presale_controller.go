@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"strconv"
 	"time"
 
@@ -77,12 +78,12 @@ func SetUserVesting(context *fiber.Ctx) error {
 // 0.1 BNB compra minima
 // 5 BNB compra máxima
 
-func CallBSC(context *fiber.Ctx) error {
+func CallBSC(context *fiber.Ctx) (*models.Oracle, error) {
 	dbOracle := new(models.Oracle)
 	fmt.Println("call")
 	parseError := utils.ParseAndValidateRequestBody(context, dbOracle)
 	if parseError != nil {
-		return utils.ReturnErrorResponse(fiber.StatusBadRequest, parseError, context)
+		return nil, parseError
 	}
 
 	type Data struct {
@@ -90,15 +91,15 @@ func CallBSC(context *fiber.Ctx) error {
 			Ethusd string
 		}
 	}
-	resp, err := http.Get("https://api.bscscan.com/api?module=stats&action=bnbprice&apikey=UMKZDMNWZE1PTPD4JVUUUXN7WGNR1FWZJW")
+	resp, err := http.Get("https://api.bscscan.com/api?module=stats&action=bnbprice&apikey=" + os.Getenv("BSCSCAN_KEY"))
 	if err != nil {
-		return utils.ReturnErrorResponse(fiber.StatusBadRequest, err, context)
+		return nil, err
 	}
 	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return utils.ReturnErrorResponse(fiber.StatusBadRequest, err, context)
+		return nil, err
 	}
 
 	d := Data{}
@@ -106,23 +107,24 @@ func CallBSC(context *fiber.Ctx) error {
 	dbOracle.LastPriceRead, _ = strconv.ParseFloat(d.Result.Ethusd, 64)
 
 	if err != nil {
-		return utils.ReturnErrorResponse(fiber.StatusForbidden, err, context)
+		return nil, err
 	}
 	updatedOracle, err := services.InsertOracleEntrie(dbOracle)
 	if err != nil {
-		return utils.ReturnErrorResponse(fiber.StatusForbidden, err, context)
+		return nil, err
 	}
 
-	return context.Status(fiber.StatusOK).JSON(updatedOracle)
+	return updatedOracle, err
 }
 
 func GetLastOracleRead(context *fiber.Ctx) (*models.Oracle, error) {
 	dbOracle, err := services.GetLastOracleRead()
-	fmt.Println(dbOracle)
+	if err != nil {
+		return nil, err
+	}
 
-	if dbOracle == nil || dbOracle.LastTimeRead > (time.Now().Unix()-5) {
-		CallBSC(context)
-		dbOracle, err = services.GetLastOracleRead()
+	if dbOracle == nil || dbOracle.LastTimeRead < (time.Now().Unix()-5) {
+		dbOracle, err = CallBSC(context)
 		if err != nil {
 			return nil, err
 		}
@@ -136,16 +138,11 @@ func CalcTokenQuantity(context *fiber.Ctx) error {
 	if parseError != nil {
 		return utils.ReturnErrorResponse(fiber.StatusBadRequest, parseError, context)
 	}
-	dbOracle, err := services.GetLastOracleRead()
-	fmt.Println(dbOracle)
-
-	if dbOracle == nil || dbOracle.LastTimeRead > (time.Now().Unix()-5) {
-		CallBSC(context)
-		dbOracle, err = services.GetLastOracleRead()
-		if err != nil {
-			return utils.ReturnErrorResponse(fiber.StatusBadRequest, err, context)
-		}
+	dbOracle, err := GetLastOracleRead(context)
+	if err != nil {
+		return utils.ReturnErrorResponse(fiber.StatusBadRequest, err, context)
 	}
+
 	tokenRespose.TokenAmount = (dbOracle.LastPriceRead * tokenRespose.BnbAmount) * 2
 	tokenRespose.LastPrice = dbOracle.LastPriceRead
 	tokenRespose.LastRead = dbOracle.LastTimeRead
