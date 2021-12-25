@@ -15,11 +15,10 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func GetPresaleByUserID(context *fiber.Ctx) error {
-	id, _ := strconv.ParseUint(context.Params("id"), 10, 64)
+func GetPresalesByUserID(context *fiber.Ctx) error {
 	userLogged, _ := utils.GetUserTokenClaims(context)
 
-	dbUser, err := services.GetPresaleByUserID(id, userLogged)
+	dbUser, err := services.GetPresalesByUserID(userLogged)
 	if err != nil {
 		return utils.ReturnErrorResponse(fiber.StatusNotFound, err, context)
 	}
@@ -35,9 +34,8 @@ func InsertPresale(context *fiber.Ctx) error {
 	if parseError != nil {
 		return utils.ReturnErrorResponse(fiber.StatusBadRequest, parseError, context)
 	}
-	bnbValueF := float64(bnbValue.LastPriceRead)
-	tokenAmount := (float64(insertPresaleRequest.Donated) * bnbValueF) / 0.5
-	insertPresaleRequest.Donated = tokenAmount
+	tokenAmount := (float64(insertPresaleRequest.Donated) * float64(bnbValue.LastPriceRead)) / 0.5
+	insertPresaleRequest.TokenAmount = tokenAmount
 	err := services.InsertPresale(insertPresaleRequest, userLogged)
 	if err != nil {
 		return utils.ReturnErrorResponse(fiber.StatusBadRequest, err, context)

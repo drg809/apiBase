@@ -10,7 +10,18 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func GetPresaleByUserID(id uint64, userLogged *models.UserTokenClaims) (*models.Presale, error) {
+func GetPresalesByUserID(userLogged *models.UserTokenClaims) (*models.UserPresales, error) {
+	var dbPresales *models.UserPresales
+
+	findResult := database.GormDB.Where("user_id = ?", userLogged.ID).Find(&dbPresales)
+	if findResult.Error != nil {
+		return nil, findResult.Error
+	}
+
+	return dbPresales, nil
+}
+
+func GetPresaleByID(id uint64, userLogged *models.UserTokenClaims) (*models.Presale, error) {
 	dbPresale := new(models.Presale)
 
 	findResult := database.GormDB.Where("user_id = ?", userLogged.ID).First(dbPresale, id)
@@ -24,7 +35,9 @@ func GetPresaleByUserID(id uint64, userLogged *models.UserTokenClaims) (*models.
 func InsertPresale(insertPresaleRequest *models.InsertPresaleRequest, userLogged *models.UserTokenClaims) error {
 	dbPresale := new(models.Presale)
 	fmt.Println(insertPresaleRequest)
-	dbPresale.Donated = uint(insertPresaleRequest.Donated)
+	dbPresale.DonatedAmount = insertPresaleRequest.Donated
+	dbPresale.TokenAmount = insertPresaleRequest.TokenAmount
+	dbPresale.TxHash = insertPresaleRequest.TxHash
 	dbPresale.UserID = userLogged.ID
 	fmt.Println(dbPresale)
 	insertResult := database.GormDB.Create(&dbPresale)
@@ -45,7 +58,7 @@ func SetUserClaim(userClaim *models.SetUserClaimRequest, userLogged *models.User
 		return claimResponse, findResult.Error
 	} else {
 		if !dbPresale.ClaimedFirst && (dbPresale.ClaimedAmount == 0) {
-			claimResponse.ClaimedAmount = uint((float64(30) / float64(100)) * float64(dbPresale.Donated))
+			claimResponse.ClaimedAmount = (float64(30) / float64(100)) * float64(dbPresale.DonatedAmount)
 			claimResponse.Status = 1
 			updateResult := database.GormDB.Model(&dbPresale).Updates(models.Presale{ClaimedFirst: true, ClaimedAmount: (claimResponse.ClaimedAmount)})
 			if updateResult.Error != nil {
@@ -69,10 +82,10 @@ func SetUserVesting(userClaim *models.SetUserClaimRequest, userLogged *models.Us
 		return claimResponse, findResult.Error
 	} else {
 		if dbPresale.ClaimedFirst && !dbPresale.ClaimedSecond && !dbPresale.ClaimedThird {
-			claimResponse.ClaimedAmount = uint((float64(35) / float64(100)) * float64(dbPresale.Donated))
+			claimResponse.ClaimedAmount = (float64(35) / float64(100)) * float64(dbPresale.DonatedAmount)
 			claimResponse.Status = 1
 			totalClaimed := claimResponse.ClaimedAmount + dbPresale.ClaimedAmount
-			if totalClaimed > dbPresale.Donated {
+			if totalClaimed > dbPresale.DonatedAmount {
 				return nil, findResult.Error
 			}
 			updateResult := database.GormDB.Model(&dbPresale).Updates(models.Presale{ClaimedSecond: true, ClaimedAmount: totalClaimed})
@@ -80,15 +93,15 @@ func SetUserVesting(userClaim *models.SetUserClaimRequest, userLogged *models.Us
 				return nil, findResult.Error
 			}
 		}
-		if diff.Hours() > 1440 && !dbPresale.ClaimedThird && (dbPresale.ClaimedAmount < dbPresale.Donated) {
-			claimResponse.ClaimedAmount += uint((float64(35) / float64(100)) * float64(dbPresale.Donated))
-			totalClaimed := uint(0)
+		if diff.Hours() > 1440 && !dbPresale.ClaimedThird && (dbPresale.ClaimedAmount < dbPresale.DonatedAmount) {
+			claimResponse.ClaimedAmount += (float64(35) / float64(100)) * float64(dbPresale.DonatedAmount)
+			totalClaimed := float64(0)
 			if claimResponse.Status == 1 {
-				totalClaimed = claimResponse.ClaimedAmount + uint((float64(30)/float64(100))*float64(dbPresale.Donated))
+				totalClaimed = claimResponse.ClaimedAmount + (float64(30)/float64(100))*float64(dbPresale.DonatedAmount)
 			} else {
 				totalClaimed = claimResponse.ClaimedAmount + dbPresale.ClaimedAmount
 			}
-			if totalClaimed > dbPresale.Donated {
+			if totalClaimed > dbPresale.DonatedAmount {
 				return nil, findResult.Error
 			}
 			claimResponse.Status = 1

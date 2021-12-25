@@ -1,5 +1,7 @@
 package models
 
 type InsertPresaleRequest struct {
-	Donated float64 `json:"donated_amount"`
+	TxHash      string  `json:"tx_hash"`
+	Donated     float64 `json:"donated_amount"`
+	TokenAmount float64 `json:"token_amount,omitempty"`
 }

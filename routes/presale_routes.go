@@ -17,8 +17,8 @@ func PresaleRoutes(router fiber.Router) {
 	// /api/v1/presale/oracle | GET
 	presaleRouter.Post("/oracle", controllers.CalcTokenQuantity)
 
-	// /api/v1/presale/:presale | GET
-	presaleRouter.Get("/:id", controllers.GetPresaleByUserID)
+	// /api/v1/presale | GET
+	presaleRouter.Get("/", controllers.GetPresalesByUserID)
 
 	// /api/v1/presale | INSERT
 	presaleRouter.Post("/", controllers.InsertPresale)
