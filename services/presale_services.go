@@ -45,12 +45,10 @@ func GetPresales() ([]*models.Presale, error) {
 
 func InsertPresale(insertPresaleRequest *models.InsertPresaleRequest, userLogged *models.UserTokenClaims) error {
 	dbPresale := new(models.Presale)
-	fmt.Println(insertPresaleRequest)
 	dbPresale.DonatedAmount = insertPresaleRequest.Donated
 	dbPresale.TokenAmount = insertPresaleRequest.TokenAmount
 	dbPresale.TxHash = insertPresaleRequest.TxHash
 	dbPresale.UserID = userLogged.ID
-	fmt.Println(dbPresale)
 	insertResult := database.GormDB.Create(&dbPresale)
 	if insertResult.Error != nil {
 		return insertResult.Error
@@ -69,7 +67,7 @@ func SetUserClaim(userClaim *models.SetUserClaimRequest) (*models.SetUserClaimRe
 		return claimResponse, findResult.Error
 	} else {
 		if !dbPresale.ClaimedFirst && (dbPresale.ClaimedAmount == 0) {
-			claimResponse.ClaimedAmount = (float64(30) / float64(100)) * float64(dbPresale.TokenAmount)
+			claimResponse.ClaimedAmount = utils.Percentage(dbPresale.TokenAmount, 30)
 			claimResponse.Status = 1
 			updateResult := database.GormDB.Model(&dbPresale).Updates(models.Presale{ClaimedFirst: true, ClaimedAmount: (claimResponse.ClaimedAmount)})
 			if updateResult.Error != nil {
@@ -93,7 +91,7 @@ func SetUserVesting(userClaim *models.SetUserClaimRequest, userLogged *models.Us
 		return claimResponse, findResult.Error
 	} else {
 		if dbPresale.ClaimedFirst && !dbPresale.ClaimedSecond && !dbPresale.ClaimedThird {
-			claimResponse.ClaimedAmount = (float64(35) / float64(100)) * float64(dbPresale.TokenAmount)
+			claimResponse.ClaimedAmount = utils.Percentage(dbPresale.TokenAmount, 35)
 			claimResponse.Status = 1
 			totalClaimed := claimResponse.ClaimedAmount + dbPresale.ClaimedAmount
 			if totalClaimed > dbPresale.TokenAmount {
@@ -105,10 +103,10 @@ func SetUserVesting(userClaim *models.SetUserClaimRequest, userLogged *models.Us
 			}
 		}
 		if diff.Hours() > 1440 && !dbPresale.ClaimedThird && (dbPresale.ClaimedAmount < dbPresale.TokenAmount) {
-			claimResponse.ClaimedAmount += (float64(35) / float64(100)) * float64(dbPresale.TokenAmount)
+			claimResponse.ClaimedAmount += utils.Percentage(dbPresale.TokenAmount, 35)
 			totalClaimed := float64(0)
 			if claimResponse.Status == 1 {
-				totalClaimed = claimResponse.ClaimedAmount + (float64(30)/float64(100))*float64(dbPresale.TokenAmount)
+				totalClaimed = claimResponse.ClaimedAmount + utils.Percentage(dbPresale.TokenAmount, 30)
 			} else {
 				totalClaimed = claimResponse.ClaimedAmount + dbPresale.ClaimedAmount
 			}

@@ -27,3 +27,7 @@ func EtherToWei(eth *big.Float) *big.Int {
 	wei := new(big.Int).Add(truncInt, fracInt)
 	return wei
 }
+
+func Percentage(n float64, d uint) float64 {
+	return (float64(d) / float64(100)) * float64(n)
+}
