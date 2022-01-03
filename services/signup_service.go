@@ -13,8 +13,8 @@ func SignupUser(signupUserRequest *models.SignupUserRequest) (*models.SignupUser
 	if findResult.Error != nil {
 		return nil, findResult.Error
 	}
-
 	token, err := utils.GenerateUserToken(bdUser.WalletAddress, bdUser.ID)
+
 	if err != nil {
 		return nil, findResult.Error
 	}
@@ -36,7 +36,6 @@ func SignupUser(signupUserRequest *models.SignupUserRequest) (*models.SignupUser
 	createUserResponse := &models.SignupUserResponse{
 		Token: token2,
 	}
-
 	if err2 != nil {
 		return nil, err2
 	}

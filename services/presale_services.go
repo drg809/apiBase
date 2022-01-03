@@ -12,7 +12,7 @@ import (
 
 func GetPresalesByUserID(userLogged *models.UserTokenClaims) (*models.UserPresales, error) {
 	var dbPresales *models.UserPresales
-
+	fmt.Println(userLogged.ID)
 	findResult := database.GormDB.Where("user_id = ?", userLogged.ID).Find(&dbPresales)
 	if findResult.Error != nil {
 		return nil, findResult.Error
@@ -64,19 +64,30 @@ func SetUserClaim(userClaim *models.SetUserClaimRequest) (*models.SetUserClaimRe
 	}
 	claimResponse := new(models.SetUserClaimResponse)
 	if dbPresale.ClaimedFirst {
-		return claimResponse, findResult.Error
+		return claimResponse, nil
 	} else {
 		if !dbPresale.ClaimedFirst && (dbPresale.ClaimedAmount == 0) {
 			claimResponse.ClaimedAmount = utils.Percentage(dbPresale.TokenAmount, 30)
 			claimResponse.Status = 1
-			updateResult := database.GormDB.Model(&dbPresale).Updates(models.Presale{ClaimedFirst: true, ClaimedAmount: (claimResponse.ClaimedAmount)})
-			if updateResult.Error != nil {
-				return nil, findResult.Error
-			}
+			claimResponse.PresaleID = userClaim.PresaleID
 		}
 		return claimResponse, nil
 	}
 
+}
+
+func UpdateUserClaim(userClaim *models.SetUserClaimResponse) (bool, error) {
+	dbPresale := new(models.Presale)
+	findResult := database.GormDB.First(dbPresale, userClaim.PresaleID)
+	if findResult.Error != nil {
+		return false, findResult.Error
+	}
+	fmt.Println(userClaim)
+	updateResult := database.GormDB.Model(&dbPresale).Updates(models.Presale{ClaimedFirst: true, ClaimedAmount: (userClaim.ClaimedAmount)})
+	if updateResult.Error != nil {
+		return false, updateResult.Error
+	}
+	return true, nil
 }
 
 func SetUserVesting(userClaim *models.SetUserClaimRequest, userLogged *models.UserTokenClaims) (*models.SetUserClaimResponse, error) {
@@ -88,7 +99,7 @@ func SetUserVesting(userClaim *models.SetUserClaimRequest, userLogged *models.Us
 	claimResponse := new(models.SetUserClaimResponse)
 	diff := time.Since(dbPresale.CreatedAt)
 	if diff.Hours() < 720 {
-		return claimResponse, findResult.Error
+		return claimResponse, nil
 	} else {
 		if dbPresale.ClaimedFirst && !dbPresale.ClaimedSecond && !dbPresale.ClaimedThird {
 			claimResponse.ClaimedAmount = utils.Percentage(dbPresale.TokenAmount, 35)
@@ -132,10 +143,8 @@ func CallBSC(context *fiber.Ctx) error {
 
 func InsertOracleEntrie(insertOracleEntrie *models.Oracle) (*models.Oracle, error) {
 	dbOracle := new(models.Oracle)
-	fmt.Println(insertOracleEntrie)
 	dbOracle.LastPriceRead = insertOracleEntrie.LastPriceRead
 	dbOracle.LastTimeRead = time.Now().Unix()
-	fmt.Println(dbOracle)
 	insertResult := database.GormDB.Create(&dbOracle)
 	if insertResult.Error != nil {
 		return nil, insertResult.Error

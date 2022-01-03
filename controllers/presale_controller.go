@@ -1,12 +1,9 @@
 package controllers
 
 import (
-	"context"
-	"crypto/ecdsa"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"math/big"
 	"net/http"
 	"os"
@@ -16,14 +13,11 @@ import (
 	"github.com/drg809/apiBase/models"
 	"github.com/drg809/apiBase/services"
 	"github.com/drg809/apiBase/utils"
-	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/gofiber/fiber/v2"
 )
 
 func GetPresalesByUserID(context *fiber.Ctx) error {
 	userLogged, _ := utils.GetUserTokenClaims(context)
-
 	dbUser, err := services.GetPresalesByUserID(userLogged)
 	if err != nil {
 		return utils.ReturnErrorResponse(fiber.StatusNotFound, err, context)
@@ -146,7 +140,7 @@ func CalcTokenQuantity(context *fiber.Ctx) error {
 		return utils.ReturnErrorResponse(fiber.StatusBadRequest, err, context)
 	}
 
-	tokenRespose.TokenAmount = (dbOracle.LastPriceRead * tokenRespose.BnbAmount) * 2
+	tokenRespose.TokenAmount = (dbOracle.LastPriceRead * tokenRespose.BnbAmount) / 0.05
 	tokenRespose.LastPrice = dbOracle.LastPriceRead
 	tokenRespose.LastRead = dbOracle.LastTimeRead
 	return context.Status(fiber.StatusOK).JSON(tokenRespose)
@@ -154,7 +148,7 @@ func CalcTokenQuantity(context *fiber.Ctx) error {
 
 func SendTokens(context *fiber.Ctx) error {
 	userLogged, _ := utils.GetUserTokenClaims(context)
-	if userLogged.Address == "0xb6e76628BeB7872D2ade6AE9641bb390401c18ef" {
+	if userLogged.Address == "0xb6e76628beb7872d2ade6ae9641bb390401c18ef" {
 		dbPresales, err := services.GetPresales()
 		if err != nil {
 			return utils.ReturnErrorResponse(fiber.StatusNotFound, err, context)
@@ -165,9 +159,20 @@ func SendTokens(context *fiber.Ctx) error {
 				presale := new(models.SetUserClaimRequest)
 				presale.PresaleID = dbPresales[i].ID
 				dbPresale, err := services.SetUserClaim(presale)
-				if err != nil && dbPresale.ClaimedAmount > 0 {
+				if err == nil && dbPresale.ClaimedAmount > 0 {
 					value := utils.EtherToWei(big.NewFloat(dbPresale.ClaimedAmount))
-					SendTransaction(dbUser.WalletAddress, value.String())
+					res, err := SendTransaction(dbUser.WalletAddress, value.String())
+					if err != nil {
+						fmt.Println("err send")
+						return utils.ReturnErrorResponse(fiber.StatusNotFound, err, context)
+					}
+					if !res {
+						fmt.Println("fail send")
+						return utils.ReturnErrorResponse(fiber.StatusNotFound, err, context)
+					} else {
+						fmt.Println("user claim")
+						services.UpdateUserClaim(dbPresale)
+					}
 				}
 
 			}
@@ -181,36 +186,37 @@ func SendTokens(context *fiber.Ctx) error {
 
 func SendTransaction1(address string, tokenAmount string) {}
 
-func SendTransaction(address string, tokenAmount string) error {
-	client, err := ethclient.Dial("https://infura.io")
-	if err != nil {
-		log.Fatal(err)
-		return err
-	}
-	chainID, err := client.NetworkID(context.Background())
-	if err != nil {
-		log.Fatal(err)
-		return err
-	}
-	fmt.Println("===========")
-	fmt.Println(chainID)
-	fmt.Println(address)
-	fmt.Println(tokenAmount)
-	fmt.Println("===========")
-	privateKey, err := crypto.HexToECDSA("fad9c8855b740a0b7ed4c221dbad0f33a83a49cad6b3fe8d5817ac83d38b6a19")
-	if err != nil {
-		log.Fatal(err)
-		return err
-	}
+func SendTransaction(address string, tokenAmount string) (bool, error) {
+	return true, nil
+	// client, err := ethclient.Dial("https://infura.io")
+	// if err != nil {
+	// 	log.Fatal(err)
+	// 	return err
+	// }
+	// chainID, err := client.NetworkID(context.Background())
+	// if err != nil {
+	// 	log.Fatal(err)
+	// 	return err
+	// }
+	// fmt.Println("===========")
+	// fmt.Println(chainID)
+	// fmt.Println(address)
+	// fmt.Println(tokenAmount)
+	// fmt.Println("===========")
+	// privateKey, err := crypto.HexToECDSA("fad9c8855b740a0b7ed4c221dbad0f33a83a49cad6b3fe8d5817ac83d38b6a19")
+	// if err != nil {
+	// 	log.Fatal(err)
+	// 	return err
+	// }
 
-	publicKey := privateKey.Public()
-	_, ok := publicKey.(*ecdsa.PublicKey)
-	if !ok {
-		log.Fatal("error casting public key to ECDSA")
-		return err
-	}
+	// publicKey := privateKey.Public()
+	// _, ok := publicKey.(*ecdsa.PublicKey)
+	// if !ok {
+	// 	log.Fatal("error casting public key to ECDSA")
+	// 	return err
+	// }
 
-	return nil
+	// return nil
 	// fromAddress := crypto.PubkeyToAddress(*publicKeyECDSA)
 	// nonce, err := client.PendingNonceAt(context.Background(), fromAddress)
 	// if err != nil {
